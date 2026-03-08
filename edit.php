@@ -12,18 +12,18 @@ $title_err = $content_err = "";
 if (isset($_POST["id"]) && !empty($_POST["id"])) {
     $id = $_POST["id"];
 
-    $input_title = trim($_POST["title"]);
-    if (empty($input_title)) {
+    $title = htmlspecialchars(trim($_POST["title"]));
+    if (empty($title)) {
         $title_err = "Please enter a title.";
-    } else {
-        $title = $input_title;
+    } elseif (strlen($title) < 5) {
+        $title_err = "Title must be at least 5 characters.";
     }
 
-    $input_content = trim($_POST["content"]);
-    if (empty($input_content)) {
+    $content = htmlspecialchars(trim($_POST["content"]));
+    if (empty($content)) {
         $content_err = "Please enter some content.";
-    } else {
-        $content = $input_content;
+    } elseif (strlen($content) < 10) {
+        $content_err = "Content must be at least 10 characters.";
     }
 
     if (empty($title_err) && empty($content_err)) {
@@ -34,7 +34,7 @@ if (isset($_POST["id"]) && !empty($_POST["id"])) {
             header("Location: index.php");
             exit();
         } else {
-            echo "Oops! Something went wrong. Please try again later.";
+            echo "<div class='alert alert-danger'>Oops! Something went wrong. Please try again later.</div>";
         }
         $stmt->close();
     }
@@ -57,7 +57,7 @@ if (isset($_POST["id"]) && !empty($_POST["id"])) {
                 exit();
             }
         } else {
-            echo "Oops! Something went wrong. Please try again later.";
+            echo "<div class='alert alert-danger'>Oops! Something went wrong. Please try again later.</div>";
         }
         $stmt->close();
     } else {
@@ -65,38 +65,37 @@ if (isset($_POST["id"]) && !empty($_POST["id"])) {
         exit();
     }
 }
+
+include 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>Edit Post</h2>
+        <form action="edit.php" method="post" class="mt-4">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id); ?>" />
 
-<head>
-    <title>Edit Post</title>
-</head>
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <!-- Client side validation: required, minlength -->
+                <input type="text" name="title"
+                    class="form-control <?php echo (!empty($title_err)) ? 'is-invalid' : ''; ?>"
+                    value="<?php echo htmlspecialchars($title); ?>" required minlength="5">
+                <span class="invalid-feedback"><?php echo $title_err; ?></span>
+            </div>
 
-<body>
-    <h2>Edit Post</h2>
-    <form action="edit.php" method="post">
-        <input type="hidden" name="id" value="<?php echo htmlspecialchars($id); ?>" />
-        <div>
-            <label>Title</label>
-            <input type="text" name="title" value="<?php echo htmlspecialchars($title); ?>">
-            <span style="color:red;">
-                <?php echo $title_err; ?>
-            </span>
-        </div>
-        <div>
-            <label>Content</label>
-            <textarea name="content" rows="5" cols="40"><?php echo htmlspecialchars($content); ?></textarea>
-            <span style="color:red;">
-                <?php echo $content_err; ?>
-            </span>
-        </div>
-        <div>
-            <input type="submit" value="Update">
-            <a href="index.php">Cancel</a>
-        </div>
-    </form>
-</body>
+            <div class="mb-3">
+                <label class="form-label">Content</label>
+                <!-- Client side validation: required, minlength -->
+                <textarea name="content" class="form-control <?php echo (!empty($content_err)) ? 'is-invalid' : ''; ?>"
+                    rows="5" required minlength="10"><?php echo htmlspecialchars($content); ?></textarea>
+                <span class="invalid-feedback"><?php echo $content_err; ?></span>
+            </div>
 
-</html>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="index.php" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<?php include 'footer.php'; ?>

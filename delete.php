@@ -6,6 +6,11 @@ if (!isset($_SESSION["user_id"])) {
     exit();
 }
 
+// Security Enhancement: Role-Based Access Control (RBAC)
+if (!isset($_SESSION["role"]) || $_SESSION["role"] !== 'admin') {
+    die("Unauthorized Access: Only administrators can delete posts.");
+}
+
 if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
     $id = trim($_GET["id"]);
 
